@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Corrida - Parte 1</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script src="game.js"></script>
+</body>
+</html>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 800;
+canvas.height = 600;
+
+let carWidth = 50;
+let carHeight = 100;
+let carX = canvas.width / 2 - carWidth / 2;
+let carY = canvas.height - carHeight - 20;
+let carSpeed = 5;
+let keys = {};
+
+document.addEventListener("keydown", (event) => {
+    keys[event.key] = true;
+});
+document.addEventListener("keyup", (event) => {
+    keys[event.key] = false;
+});
+
+function drawCar() {
+    ctx.fillStyle = "blue";
+    ctx.fillRect(carX, carY, carWidth, carHeight);
+}
+
+function moveCar() {
+    if (keys["ArrowLeft"] && carX > 0) {
+        carX -= carSpeed;
+    }
+    if (keys["ArrowRight"] && carX < canvas.width - carWidth) {
+        carX += carSpeed;
+    }
+}
+
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCar();
+    moveCar();
+}
+
+setInterval(gameLoop, 1000 / 60); // 60 FPS
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 800;
+canvas.height = 600;
+
+let carWidth = 50;
+let carHeight = 100;
+let carX = canvas.width / 2 - carWidth / 2;
+let carY = canvas.height - carHeight - 20;
+let carSpeed = 5;
+let keys = {};
+
+const obstacles = [];
+const obstacleSpeed = 3;
+let gameInterval;
+let frameCount = 0;
+
+document.addEventListener("keydown", (event) => {
+    keys[event.key] = true;
+});
+document.addEventListener("keyup", (event) => {
+    keys[event.key] = false;
+});
+
+function drawCar() {
+    ctx.fillStyle = "blue";
+    ctx.fillRect(carX, carY, carWidth, carHeight);
+}
+
+function moveCar() {
+    if (keys["ArrowLeft"] && carX > 0) {
+        carX -= carSpeed;
+    }
+    if (keys["ArrowRight"] && carX < canvas.width - carWidth) {
+        carX += carSpeed;
+    }
+}
+
+function createObstacle() {
+    const obstacleWidth = 50 + Math.random() * 100;
+    const obstacleHeight = 20 + Math.random() * 40;
+    const obstacleX = Math.random() * (canvas.width - obstacleWidth);
+    obstacles.push({
+        x: obstacleX,
+        y: 0,
+        width: obstacleWidth,
+        height: obstacleHeight
+    });
+}
+
+function drawObstacles() {
+    ctx.fillStyle = "red";
+    obstacles.forEach((obstacle) => {
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    });
+}
+
+function moveObstacles() {
+    obstacles.forEach((obstacle) => {
+        obstacle.y += obstacleSpeed;
+    });
+}
+
+function detectCollisions() {
+    obstacles.forEach((obstacle) => {
+        if (
+            carX < obstacle.x + obstacle.width &&
+            carX + carWidth > obstacle.x &&
+            carY < obstacle.y + obstacle.height &&
+            carY + carHeight > obstacle.y
+        ) {
+            clearInterval(gameInterval);
+            alert("Game Over!");
+        }
+    });
+}
+
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCar();
+    moveCar();
+
+    if (frameCount % 60 === 0) {
+        createObstacle();
+    }
+
+    drawObstacles();
+    moveObstacles();
+    detectCollisions();
+
+    frameCount++;
+}
+
+gameInterval = setInterval(gameLoop, 1000 / 60); // 60 FPS
